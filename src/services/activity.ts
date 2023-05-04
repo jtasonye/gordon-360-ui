@@ -25,7 +25,7 @@ type InvolvementUpdate = {
   Url: string;
 };
 
-const editActivity = (activityCode: string, data: InvolvementUpdate): Promise<InvolvementUpdate> =>
+const editActivity = (activityCode: string, data: InvolvementUpdate): Promise<Activity> =>
   http.put(`activities/${activityCode}`, data);
 
 const setActivityImage = (activityCode: string, imageDataURI: string): Promise<Activity> =>
