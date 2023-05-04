@@ -14,7 +14,7 @@ import GordonDialogBox from 'components/GordonDialogBox';
 import GordonOffline from 'components/GordonOffline';
 import GordonLoader from 'components/Loader';
 import { useAuthGroups, useNetworkStatus, useUser } from 'hooks';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Cropper from 'react-cropper';
 import Dropzone from 'react-dropzone';
 import { useParams } from 'react-router';
@@ -27,67 +27,67 @@ import { gordonColors } from 'theme';
 import ContactListItem from './components/ContactListItem';
 import Membership from './components/Membership';
 import styles from './InvolvementProfile.module.css';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Participation } from 'services/membership';
 
 const CROP_DIM = 320; // pixels
 
+const parseEmailsFromList = (list) => list.map((e) => e.Email).join(',');
+
 const InvolvementProfile = () => {
-  const [involvementInfo, setInvolvementInfo] = useState(null);
-  const [contacts, setContacts] = useState([]);
   const [photoOpen, setPhotoOpen] = useState(false);
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [photoUpdated, setPhotoUpdated] = useState(false);
-  const [sessionInfo, setSessionInfo] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [tempBlurb, setTempBlurb] = useState('');
   const [tempJoinInfo, setTempJoinInfo] = useState('');
   const [tempURL, setTempURL] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
   const isSiteAdmin = useAuthGroups(AuthGroup.SiteAdmin);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isRemoveImageDialogOpen, setIsRemoveImageDialogOpen] = useState(false);
-  const [emailList, setEmailList] = useState([]);
   const [cropperData, setCropperData] = useState({});
   const isOnline = useNetworkStatus();
   const cropperRef = useRef();
   const { sessionCode, involvementCode } = useParams();
   const { profile, loading: loadingProfile } = useUser();
 
-  useEffect(() => {
-    const loadPage = async () => {
-      if (profile) {
-        const [involvementInfo, contacts, sessionInfo, isAdmin] = await Promise.all([
-          involvementService.get(involvementCode),
-          involvementService.getContacts(involvementCode, sessionCode),
-          sessionService.get(sessionCode),
-          membershipService.checkAdmin(profile.AD_Username, sessionCode, involvementCode),
-        ]);
+  const queryClient = useQueryClient();
 
-        setInvolvementInfo(involvementInfo);
-        setContacts(contacts);
-        setSessionInfo(sessionInfo);
-        setIsAdmin(isAdmin);
-        setTempBlurb(involvementInfo.ActivityBlurb);
-        setTempJoinInfo(involvementInfo.ActivityJoinInfo);
-        setTempURL(involvementInfo.ActivityURL);
+  const involvementQuery = useQuery({
+    queryKey: ['involvements', involvementCode],
+    queryFn: () => involvementService.get(involvementCode),
+  });
 
-        if (isAdmin || isSiteAdmin) {
-          setEmailList(await emailsService.getPerActivity(involvementCode, { sessionCode }));
-        }
+  const sessionQuery = useQuery({
+    queryKey: ['sessions', sessionCode],
+    queryFn: () => sessionService.get(sessionCode),
+  });
 
-        setLoading(false);
-      } else {
-        const [involvementInfo, sessionInfo] = await Promise.all([
-          involvementService.get(involvementCode),
-          sessionService.get(sessionCode),
-        ]);
-        setInvolvementInfo(involvementInfo);
-        setSessionInfo(sessionInfo);
-        setLoading(false);
-      }
-    };
-    loadPage();
-  }, [involvementCode, isSiteAdmin, sessionCode, profile]);
+  const contactsQuery = useQuery({
+    queryKey: ['involvements', involvementCode, 'contacts'],
+    queryFn: () => involvementService.getContacts(involvementCode, sessionCode),
+    enabled: Boolean(profile),
+  });
+
+  const isAdminQuery = useQuery({
+    queryKey: [
+      'memberships',
+      {
+        involvementCode,
+        username: profile?.AD_Username,
+        sessionCode,
+        participationTypes: Participation.GroupAdmin,
+      },
+    ],
+    queryFn: () => membershipService.checkAdmin(profile.AD_Username, sessionCode, involvementCode),
+    enabled: !loadingProfile && profile !== null,
+  });
+
+  const emailsQuery = useQuery({
+    queryKey: ['emails', 'involvement', involvementCode, { sessionCode }],
+    queryFn: () => emailsService.getPerActivity(involvementCode, { sessionCode }),
+    enabled: isAdminQuery.data, //|| isSiteAdmin,
+  });
 
   const onDropAccepted = (fileList) => {
     var previewImageFile = fileList[0];
@@ -157,27 +157,20 @@ const InvolvementProfile = () => {
       JoinInfo: tempJoinInfo,
       Url: tempURL,
     };
-    await involvementService.editActivity(involvementInfo.ActivityCode, data);
-    setInvolvementInfo((i) => ({
-      ...i,
-      ActivityBlurb: tempBlurb,
-      ActivityURL: tempURL,
-      ActivityJoinInfo: tempJoinInfo,
-    }));
+    await involvementService.editActivity(involvementCode, data);
 
     if (photoUpdated === true) {
-      const { ActivityImagePath: newImagePath } = await involvementService.setActivityImage(
-        involvementInfo.ActivityCode,
-        image,
-      );
-      setInvolvementInfo((i) => ({ ...i, ActivityImagePath: newImagePath }));
+      await involvementService.setActivityImage(involvementCode, image);
     }
+
+    queryClient.invalidateQueries({ queryKey: ['involvements', involvementCode] });
+
     setIsEditDialogOpen(false);
   };
 
   const onRemoveImage = async () => {
-    await involvementService.resetImage(involvementInfo.ActivityCode);
-    setInvolvementInfo(await involvementService.get(involvementCode));
+    await involvementService.resetImage(involvementCode);
+    queryClient.invalidateQueries({ queryKey: ['involvements', involvementCode] });
     setIsRemoveImageDialogOpen(false);
   };
 
@@ -199,21 +192,23 @@ const InvolvementProfile = () => {
     }
   };
 
-  const parseEmailsFromList = (list) => {
-    return list.map((e) => e.Email).join(',');
-  };
-
   if (!isOnline) {
     return <GordonOffline feature="This involvement" />;
   }
 
   let content;
-  if (loading) {
+  if (
+    sessionQuery.isLoading ||
+    involvementQuery.isLoading ||
+    contactsQuery.isLoading ||
+    isAdminQuery.isLoading ||
+    emailsQuery.isLoading
+  ) {
     content = <GordonLoader />;
   } else {
-    const { SessionDescription } = sessionInfo;
+    const { SessionDescription } = sessionQuery.data;
     const { ActivityBlurb, ActivityDescription, ActivityURL, ActivityImagePath, ActivityJoinInfo } =
-      involvementInfo;
+      involvementQuery.data;
 
     const redButton = {
       background: gordonColors.secondary.red,
@@ -222,7 +217,7 @@ const InvolvementProfile = () => {
 
     const editInvolvement = loadingProfile ? (
       <GordonLoader />
-    ) : isAdmin || isSiteAdmin ? (
+    ) : isAdminQuery.data ? ( //|| isSiteAdmin
       <Grid item>
         <Grid container spacing={2} justifyContent="center">
           <Grid item>
@@ -235,7 +230,7 @@ const InvolvementProfile = () => {
               variant="contained"
               color="primary"
               component={Link}
-              href={`mailto:${parseEmailsFromList(emailList)}`}
+              href={`mailto:${parseEmailsFromList(emailsQuery.data)}`}
             >
               Email Members/Subscribers
             </Button>
@@ -428,7 +423,7 @@ const InvolvementProfile = () => {
                     <strong>Group Contacts</strong>
                   </Typography>
                   <List>
-                    {contacts.map((contact, index) => (
+                    {contactsQuery.data.map((contact, index) => (
                       <ContactListItem key={index} contact={contact} />
                     ))}
                   </List>
@@ -441,9 +436,8 @@ const InvolvementProfile = () => {
                 </Grid>
                 <Membership
                   involvementDescription={ActivityDescription}
-                  isAdmin={isAdmin}
+                  isAdmin={isAdminQuery.data}
                   isSiteAdmin={isSiteAdmin}
-                  toggleIsAdmin={() => setIsAdmin((a) => !a)}
                 />
               </>
             ) : null}
