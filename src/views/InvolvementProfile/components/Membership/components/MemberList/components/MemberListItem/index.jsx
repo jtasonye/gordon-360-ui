@@ -17,9 +17,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 import GordonDialogBox from 'components/GordonDialogBox';
 import { useUser } from 'hooks';
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
 import membership from 'services/membership';
 import userService from 'services/user';
 import { gordonColors } from 'theme';
@@ -59,7 +61,6 @@ const MemberListItem = ({
   createSnackbar,
   isMobileView,
   onLeave,
-  onToggleIsAdmin,
 }) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [titleDialog, setTitleDialog] = useState(member.Description);
@@ -75,6 +76,9 @@ const MemberListItem = ({
   const [title, setTitle] = useState(member.Description);
   const [avatar, setAvatar] = useState();
   const { profile } = useUser();
+
+  const { involvementCode, sessionCode } = useParams();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadAvatar = async () => {
@@ -412,7 +416,19 @@ const MemberListItem = ({
       </GordonDialogBox>
       <GordonDialogBox
         open={isUnadminSelfDialogOpen}
-        buttonClicked={onToggleIsAdmin}
+        buttonClicked={() =>
+          queryClient.invalidateQueries({
+            queryKey: [
+              'memberships',
+              {
+                involvementCode,
+                username: profile?.AD_Username,
+                sessionCode,
+                participationTypes: 'GRP_ADMIN',
+              },
+            ],
+          })
+        }
         cancelButtonClicked={() => setIsUnadminSelfDialogOpen(false)}
       >
         Are you sure you want to remove yourself from the list of group admins? You won't be able to

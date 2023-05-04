@@ -11,14 +11,7 @@ const headerStyle = {
   padding: '10px',
 };
 
-const MemberList = ({
-  members,
-  isAdmin,
-  isSiteAdmin,
-  createSnackbar,
-  onLeave,
-  onToggleIsAdmin,
-}) => {
+const MemberList = ({ members, isAdmin, isSiteAdmin, createSnackbar, onLeave }) => {
   const [width] = useWindowSize();
   const isMobileView = width < breakpointWidth;
 
@@ -108,7 +101,6 @@ const MemberList = ({
             createSnackbar={createSnackbar}
             isMobileView={isMobileView}
             onLeave={onLeave}
-            onToggleIsAdmin={onToggleIsAdmin}
           />
         ))}
       </CardContent>

@@ -9,7 +9,7 @@ import AdminCard from './components/AdminCard';
 import MemberList from './components/MemberList';
 import NonMemberButtons from './components/NonMemberButtons';
 
-const Membership = ({ isAdmin, isSiteAdmin, involvementDescription, toggleIsAdmin }) => {
+const Membership = ({ isAdmin, isSiteAdmin, involvementDescription }) => {
   const [members, setMembers] = useState([]);
   const [followersNum, setFollowersNum] = useState(0);
   const [membersNum, setMembersNum] = useState(0);
@@ -120,7 +120,6 @@ const Membership = ({ isAdmin, isSiteAdmin, involvementDescription, toggleIsAdmi
               isSiteAdmin={isSiteAdmin}
               createSnackbar={createSnackbar}
               onLeave={handleLeave}
-              onToggleIsAdmin={toggleIsAdmin}
             />
           </Grid>
         </>
