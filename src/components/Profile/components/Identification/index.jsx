@@ -423,16 +423,14 @@ const Identification = ({ profile, myProf, isOnline, createSnackbar }) => {
                 }}
               >
                 {({ getRootProps, getInputProps }) => (
-                  <section>
-                    <div className="gc360_photo_dialog_box_content_dropzone" {...getRootProps()}>
-                      <input {...getInputProps()} />
-                      <img
-                        className="gc360_photo_dialog_box_content_dropzone_img"
-                        src={`data:image/jpg;base64,${preferredUserImage || defaultUserImage}`}
-                        alt="Profile"
-                      />
-                    </div>
-                  </section>
+                  <div className="gc360_photo_dialog_box_content_dropzone" {...getRootProps()}>
+                    <input {...getInputProps()} />
+                    <img
+                      className="gc360_photo_dialog_box_content_dropzone_img"
+                      src={`data:image/jpg;base64,${preferredUserImage || defaultUserImage}`}
+                      alt="Profile"
+                    />
+                  </div>
                 )}
               </Dropzone>
             )}
