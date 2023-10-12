@@ -1,31 +1,16 @@
 .event_item {
-  padding: 10px;
-}
-
-.event_column {
-  padding-inline: 10px;
-}
-
-.event_item:hover {
-
-  .event_column,
-  .descriptionText {
-    color: var(--mui-palette-primary-contrastText);
-  }
-}
-
-:global(.gc360_event_list)>section {
+  padding: 0.75rem;
   background-color: var(--mui-palette-neutral-light);
   transition: background-color 200ms ease;
 
   &:hover {
     background-color: var(--mui-palette-secondary-main);
+    color: var(--mui-palette-primary-contrastText);
     cursor: pointer;
   }
 }
 
-// Make even-numbered rows gray
-:global(.gc360_event_list)>section:nth-child(even) {
+.event_item:nth-child(even) {
   background-color: var(--mui-palette-neutral-200);
 
   &:hover {

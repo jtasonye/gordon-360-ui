@@ -63,13 +63,11 @@ const EventList = ({ events }) => {
   return (
     <Card>
       <CardHeader title={header} className={styles.header} />
-      <Grid>
-        <List className="gc360_event_list" disablePadding>
-          {events?.length < 1
-            ? noEvents
-            : events.map((event) => <EventItem event={event} key={event.Event_ID} />)}
-        </List>
-      </Grid>
+      <List>
+        {events?.length < 1
+          ? noEvents
+          : events.map((event) => <EventItem event={event} key={event.Event_ID} />)}
+      </List>
     </Card>
   );
 };

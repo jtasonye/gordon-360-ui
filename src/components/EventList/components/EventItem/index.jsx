@@ -10,37 +10,31 @@ const EventItem = ({ event }) => {
 
   return (
     <Grid
-      component="section"
+      component="li"
       container
       direction="row"
       onClick={() => setExpanded((e) => !e)}
       className={styles.event_item}
     >
       <Grid item xs={12} sm={4}>
-        <Typography variant="h6" className={styles.event_column}>
-          {event.title}
-        </Typography>
+        <Typography variant="h6">{event.title}</Typography>
       </Grid>
       <Grid item xs={6} sm={2}>
-        <Typography className={styles.event_column}>
-          {event.date === 'Invalid DateTime' ? 'No Date Listed' : event.date}
-        </Typography>
+        <Typography>{event.date === 'Invalid DateTime' ? 'No Date Listed' : event.date}</Typography>
       </Grid>
       <Grid item xs={6} sm={2}>
-        <Typography className={styles.event_column}>
+        <Typography>
           {event.timeRange === 'Invalid DateTime - Invalid DateTime'
             ? 'No Time Listed'
             : event.timeRange}
         </Typography>
       </Grid>
       <Grid item xs={12} sm={4}>
-        <Typography className={styles.event_column}>{event.location}</Typography>
+        <Typography>{event.location}</Typography>
       </Grid>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          <Typography type="caption" className={styles.descriptionText}>
-            {event.Description || 'No description available'}
-          </Typography>
+          <Typography type="caption">{event.Description || 'No description available'}</Typography>
           {event.StartDate !== '' && event.EndDate !== '' && (
             <add-to-calendar-button
               name={event.title}
