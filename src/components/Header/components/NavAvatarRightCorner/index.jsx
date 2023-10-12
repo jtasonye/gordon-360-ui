@@ -1,56 +1,24 @@
-import { Avatar, IconButton, Tooltip } from '@mui/material';
+import { Avatar, IconButton } from '@mui/material';
 import GordonLoader from 'components/Loader';
 import { useUser } from 'hooks';
-import { useEffect, useState } from 'react';
 import styles from './NavAvatarRightCorner.module.css';
+import { Link } from 'react-router-dom';
 
-export const GordonNavAvatarRightCorner = ({ onClick }) => {
-  const [name, setName] = useState(null);
-  const [image, setImage] = useState(null);
-  const user = useUser();
-
-  useEffect(() => {
-    function loadAvatar() {
-      if (user.profile) {
-        setName(user.profile.fullName);
-        const image = user.images.pref || user.images.def;
-        setImage(image);
-      } else {
-        setName('Guest');
-      }
-    }
-
-    loadAvatar();
-  }, [user]);
-
-  const avatar = user.loading ? (
-    <GordonLoader size={68} color="secondary" />
-  ) : user.profile ? (
-    image ? (
-      <Avatar className={styles.root} src={`data:image/jpg;base64,${image}`} sizes="70px" />
-    ) : (
-      <Avatar className={styles.root}>
-        {user.profile?.FirstName?.[0]} {user.profile?.LastName?.[0]}
-      </Avatar>
-    )
-  ) : (
-    <Avatar className={styles.root}>Guest</Avatar>
-  );
+export const GordonNavAvatarRightCorner = () => {
+  const { profile, images, loading } = useUser();
+  const image = images?.pref || images?.def;
 
   return (
-    <section className={styles.right_side_container}>
-      <Tooltip className={styles.tooltip} id="tooltip_avatar" title={name ?? 'Nav Avatar'}>
-        <IconButton
-          className={styles.root}
-          aria-label="More"
-          aria-owns={'global-menu'}
-          aria-haspopup="true"
-          onClick={onClick}
-          size="large"
-        >
-          {avatar}
-        </IconButton>
-      </Tooltip>
-    </section>
+    <IconButton className={styles.button} component={Link} to="/myprofile">
+      {loading ? (
+        <GordonLoader size={68} color="secondary" />
+      ) : image ? (
+        <Avatar className={styles.root} src={`data:image/jpg;base64,${image}`} sizes="50px" />
+      ) : (
+        <Avatar className={styles.root}>
+          {profile?.FirstName?.[0]} {profile?.LastName?.[0]}
+        </Avatar>
+      )}
+    </IconButton>
   );
 };

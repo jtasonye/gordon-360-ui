@@ -7,7 +7,7 @@ import WorkIcon from '@mui/icons-material/Work';
 import { Divider, List } from '@mui/material';
 import RecIMIcon from '@mui/icons-material/SportsFootball';
 import GordonDialogBox from 'components/GordonDialogBox';
-import GordonNavButton from 'components/NavButton';
+import GordonNavButton from './components/NavButton';
 import GordonQuickLinksDialog from 'components/QuickLinksDialog';
 import PaletteSwitcherDialog from 'components/PaletteSwitcherDialog';
 import { useAuthGroups, useNetworkStatus } from 'hooks';
@@ -195,7 +195,7 @@ const GordonNavLinks = ({ onLinkClick }) => {
 
   return (
     <>
-      <List className={styles.gordon_nav_links}>
+      <List component="nav" className={styles.gordon_nav_links}>
         {homeButton}
         {involvementsButton}
         {eventsButton}

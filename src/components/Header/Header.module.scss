@@ -1,9 +1,7 @@
 @import '../../vars';
 
 .app_bar {
-  position: sticky;
   height: var(--header-height);
-  z-index: 100; // so quick search results appear above page.
 }
 
 .toolbar {
@@ -28,6 +26,7 @@
 
 .side_container {
   display: flex;
+  align-items: center;
 }
 
 .center_container {

@@ -11,7 +11,7 @@ import RecIMIcon from '@mui/icons-material/SportsFootball';
 import GordonDialogBox from 'components/GordonDialogBox';
 import { useNetworkStatus } from 'hooks';
 import { forwardRef, useEffect, useState } from 'react';
-import { useNavigate, NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { authenticate } from 'services/auth';
 import { GordonNavAvatarRightCorner } from './components/NavAvatarRightCorner';
 import GordonQuickSearch from './components/QuickSearch';
@@ -57,15 +57,10 @@ const useTabHighlight = () => {
 };
 
 const GordonHeader = ({ onDrawerToggle }) => {
-  const navigate = useNavigate();
   const [dialog, setDialog] = useState('');
   const isOnline = useNetworkStatus();
   const isAuthenticated = useIsAuthenticated();
   const tabIndex = useTabHighlight();
-
-  const handleOpenProfile = () => {
-    navigate('/myprofile');
-  };
 
   const createDialogBox = () => {
     const isOffline = dialog === 'offline';
@@ -129,7 +124,11 @@ const GordonHeader = ({ onDrawerToggle }) => {
   );
 
   return (
-    <AppBar className={styles.app_bar} position="static">
+    <AppBar
+      className={styles.app_bar}
+      position="sticky"
+      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+    >
       <Toolbar className={styles.toolbar}>
         <div className={styles.side_container}>
           <IconButton
@@ -180,7 +179,7 @@ const GordonHeader = ({ onDrawerToggle }) => {
           <div className={styles.people_search_container}>
             {isAuthenticated ? <GordonQuickSearch /> : loginButton}
           </div>
-          <GordonNavAvatarRightCorner onClick={handleOpenProfile} />
+          {isAuthenticated && <GordonNavAvatarRightCorner />}
         </div>
         {createDialogBox()}
       </Toolbar>
