@@ -34,7 +34,7 @@ type EventDisplayProperties = {
   location: string;
 };
 
-type Event = UnformattedEvent & EventDisplayProperties;
+export type Event = UnformattedEvent & EventDisplayProperties;
 type AttendedEvent = UnformattedAttendedEvent & EventDisplayProperties;
 
 function formatEvent<T extends BaseEvent>(event: T): T & EventDisplayProperties {
@@ -82,7 +82,7 @@ const getFutureEvents = (allEvents: Event[]): Event[] => {
     .sort(compareByProperty('StartDate'));
 };
 
-export const EVENT_FILTERS = Object.freeze([
+export const EVENT_FILTERS = [
   'CLW Credits',
   'Admissions',
   'Arts',
@@ -90,11 +90,13 @@ export const EVENT_FILTERS = Object.freeze([
   'CEC',
   'Chapel Office',
   'Student Life',
-]);
+] as const;
+
+export type EventFilter = (typeof EVENT_FILTERS)[number];
 
 const getFilteredEvents = (events: Event[], filters: string[], search: string): Event[] => {
-  const matchesSearch = makeMatchesSearch(search);
-  const matchesFilters = makeMatchesFilters(filters);
+  const matchesSearch = createSearchClosure(search);
+  const matchesFilters = createFilterClosure(filters);
   if (search && filters.length) {
     return events.filter((event) => matchesSearch(event) && matchesFilters(event));
   } else if (search) {
@@ -114,7 +116,7 @@ const getFilteredEvents = (events: Event[], filters: string[], search: string): 
  * @param search The string to search for
  * @returns A function that matches a given event against `search`
  */
-const makeMatchesSearch = (search: string) => {
+const createSearchClosure = (search: string) => {
   const matchableSearchString = search.toLowerCase();
   return (event: Event) => {
     return (
@@ -134,7 +136,7 @@ const makeMatchesSearch = (search: string) => {
  * @param filters The list of filters to match an event against
  * @returns A function that matches a given event against `filters`
  */
-const makeMatchesFilters =
+const createFilterClosure =
   (filters: string[]) =>
   (event: Event): boolean => {
     // Since we've closed over filters, we can match the event against only the enabled filters

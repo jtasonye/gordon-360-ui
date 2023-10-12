@@ -20,20 +20,19 @@ import GordonLoader from 'components/Loader';
 import { useWindowSize } from 'hooks';
 import { useEffect, useMemo, useState } from 'react';
 import Media from 'react-media';
-import gordonEvent, { EVENT_FILTERS } from 'services/event';
+import gordonEvent, { EVENT_FILTERS, Event, EventFilter } from 'services/event';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Events.module.css';
 
 const Events = () => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [allEvents, setAllEvents] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [includePast, setIncludePast] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState([]);
-  const [hasInitializedEvents, setHasInitializedEvents] = useState(false);
+  const [filters, setFilters] = useState<EventFilter[]>([]);
   const futureEvents = useMemo(() => gordonEvent.getFutureEvents(allEvents), [allEvents]);
   const [width] = useWindowSize();
   const isAuthenticated = useIsAuthenticated();
@@ -43,14 +42,10 @@ const Events = () => {
   useEffect(() => {
     const loadEvents = async () => {
       setLoading(true);
-      let allEvents;
-      if (isAuthenticated) {
-        allEvents = await gordonEvent.getAllEvents();
-      } else {
-        allEvents = await gordonEvent.getAllGuestEvents();
-      }
+      const allEvents = isAuthenticated
+        ? await gordonEvent.getAllEvents()
+        : await gordonEvent.getAllGuestEvents();
       setAllEvents(allEvents);
-      setHasInitializedEvents(true);
 
       // Load filters from UrlParams if they exist
       if (location.search) {
@@ -66,7 +61,7 @@ const Events = () => {
           }
         }
 
-        setFilters(filtersFromURL);
+        setFilters(filtersFromURL as EventFilter[]);
         setIncludePast(willIncludePast);
         setOpen(willIncludePast || filtersFromURL.length > 0);
       }
@@ -87,7 +82,7 @@ const Events = () => {
     setFilteredEvents(gordonEvent.getFilteredEvents(events, filters, search));
   }, [events, filters, search]);
 
-  const handleChangeFilters = async (value) => {
+  const handleChangeFilters = async (value: EventFilter[]) => {
     setFilters(value);
     setURLParams(includePast, value);
   };
@@ -109,7 +104,7 @@ const Events = () => {
     setURLParams(!includePast, filters);
   };
 
-  const setURLParams = (includePast, filters) => {
+  const setURLParams = (includePast: boolean, filters: EventFilter[]) => {
     if (includePast || filters.length > 0) {
       let url = '?';
       if (includePast) url += '&Past';
@@ -117,20 +112,20 @@ const Events = () => {
       navigate(url);
     } else if (location.search) {
       // If no params but current url has params, then push url with no params
-      navigate();
+      navigate({ search: '' });
     }
   };
 
   let content;
 
-  if (loading || !hasInitializedEvents) {
+  if (loading) {
     content = <GordonLoader />;
   } else {
-    content = <EventList events={filteredEvents} loading={loading} />;
+    content = <EventList events={filteredEvents} />;
   }
 
   const searchPageTitle = (
-    <div align="center">
+    <div>
       Search
       <b className={styles.events_gordon_text}> Gordon </b>
       Events
@@ -179,7 +174,7 @@ const Events = () => {
                         color={open ? (filters.length === 0 ? 'primary' : 'secondary') : 'link'}
                         variant={open ? 'contained' : 'outlined'}
                         onClick={handleExpandClick}
-                        className={open ? null : styles.events_filter_button}
+                        className={open ? undefined : styles.events_filter_button}
                       >
                         <AddIcon fontSize="inherit" />
                         Filters

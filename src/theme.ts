@@ -17,7 +17,8 @@ declare module '@mui/material/styles' {
 
 declare module '@mui/material' {
   interface ButtonPropsColorOverrides {
-    neutral: any;
+    neutral: true;
+    link: true;
   }
 }
 
