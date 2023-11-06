@@ -1,6 +1,6 @@
 import http from './http';
 
-interface Slide {
+export interface Slide {
   ID: number;
   Path: string;
   Title: string;
