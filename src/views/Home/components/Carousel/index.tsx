@@ -1,13 +1,14 @@
 import GordonLoader from 'components/Loader';
 import { useEffect, useRef, useState } from 'react';
+import ReactImageGallery from 'react-image-gallery';
 import ImageGallery from 'react-image-gallery';
-import contentManagementService from 'services/contentManagement';
+import contentManagementService, { Slide } from 'services/contentManagement';
 import { compareByProperty, sort } from 'services/utils';
 
 const GordonCarousel = () => {
   const [loading, setLoading] = useState(true);
-  const [carouselContent, setCarouselContent] = useState(null);
-  const imageGalleryRef = useRef();
+  const [carouselContent, setCarouselContent] = useState<Slide[]>([]);
+  const imageGalleryRef = useRef<ReactImageGallery>(null);
 
   useEffect(() => {
     contentManagementService
@@ -18,9 +19,12 @@ const GordonCarousel = () => {
   }, []);
 
   const handleClickSlide = () => {
-    const currentSlideLink = carouselContent[imageGalleryRef.current.getCurrentIndex()].LinkURL;
+    const currentSlideIndex = imageGalleryRef.current?.getCurrentIndex();
+    if (!currentSlideIndex) return;
+
+    const currentSlideLink = carouselContent[currentSlideIndex].LinkURL;
     if (currentSlideLink !== '') {
-      window.location = currentSlideLink;
+      window.location.href = currentSlideLink;
     }
   };
 
