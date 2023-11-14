@@ -1,6 +1,6 @@
 import http from './http';
 
-type Slide = {
+interface Slide {
   ID: number;
   Path: string;
   Title: string;
@@ -8,18 +8,18 @@ type Slide = {
   Width: number;
   Height: number;
   SortOrder: number;
-};
+}
 
-type SlidePosting = {
+interface SlidePost {
   Title: string;
   LinkURL: string;
   SortOrder: number;
   ImageData: string;
-};
+}
 
 const getSlides = (): Promise<Slide[]> => http.get('contentmanagement/banner');
 
-const submitSlide = (slide: SlidePosting): Promise<Slide> =>
+const submitSlide = (slide: SlidePost): Promise<Slide> =>
   http.post('contentmanagement/banner', slide);
 
 const deleteSlide = (ID: number): Promise<Slide> => http.del(`contentmanagement/banner/${ID}`);
