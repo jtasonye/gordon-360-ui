@@ -4,7 +4,7 @@ import ImageGallery from 'react-image-gallery';
 import contentManagementService from 'services/contentManagement';
 import { compareByProperty, sort } from 'services/utils';
 
-const GordonCarousel = () => {
+const Carousel = () => {
   const [loading, setLoading] = useState(true);
   const [carouselContent, setCarouselContent] = useState(null);
   const imageGalleryRef = useRef();
@@ -12,7 +12,7 @@ const GordonCarousel = () => {
   useEffect(() => {
     contentManagementService
       .getSlides()
-      .then(sort(compareByProperty('SortOrder')))
+      .then(sort(compareByProperty('SortOder')))
       .then(setCarouselContent)
       .then(() => setLoading(false));
   }, []);
@@ -49,4 +49,4 @@ const GordonCarousel = () => {
   );
 };
 
-export default GordonCarousel;
+export default Carousel;
