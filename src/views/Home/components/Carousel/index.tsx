@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import ReactImageGallery from 'react-image-gallery';
 import ImageGallery from 'react-image-gallery';
 import contentManagementService, { Slide } from 'services/contentManagement';
-import { compareByProperty, sort } from 'services/utils';
+import { compareByProperty } from 'services/utils';
 
 const Carousel = () => {
   const [loading, setLoading] = useState(true);
@@ -11,11 +11,15 @@ const Carousel = () => {
   const imageGalleryRef = useRef<ReactImageGallery>(null);
 
   useEffect(() => {
-    contentManagementService
-      .getSlides()
-      .then(sort(compareByProperty('SortOrder')))
-      .then(setCarouselContent)
-      .then(() => setLoading(false));
+    const loadSlides = async () => {
+      const slides = await contentManagementService.getSlides();
+      slides.sort(compareByProperty('SortOrder'));
+
+      setCarouselContent(slides);
+      setLoading(false);
+    };
+
+    loadSlides();
   }, []);
 
   const handleClickSlide = () => {
