@@ -4,7 +4,6 @@ import HomeIcon from '@mui/icons-material/Home';
 import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 import LinkIcon from '@mui/icons-material/InsertLink';
 import PeopleIcon from '@mui/icons-material/People';
-import WorkIcon from '@mui/icons-material/Work';
 import { Divider, List } from '@mui/material';
 import RecIMIcon from '@mui/icons-material/SportsFootball';
 import GordonDialogBox from 'components/GordonDialogBox';
@@ -105,18 +104,6 @@ const GordonNavLinks = ({ onLinkClick }) => {
       linkName="Links"
       linkPath="/links"
       LinkIcon={LinkIcon}
-      divider={false}
-    />
-  );
-
-  const timesheetsButton = (
-    <GordonNavButton
-      unavailable={!isOnline ? 'offline' : !isAuthenticated ? 'unauthorized' : null}
-      openUnavailableDialog={setDialog}
-      onLinkClick={onLinkClick}
-      linkName={'Timesheets'}
-      linkPath={'/timesheets'}
-      LinkIcon={WorkIcon}
       divider={false}
     />
   );
