@@ -1,5 +1,7 @@
 import ReactGA from 'react-ga4';
 
+let hasBeenInitialized = false;
+
 const onError = (description: string) => {
   ReactGA.send({
     hitType: 'exception',
@@ -33,6 +35,7 @@ const onPageView = (title?: string) =>
 
 const initialize = () => {
   ReactGA.initialize(import.meta.env.VITE_ANALYTICS_ID ?? 'G-2FE78G0CBN');
+  hasBeenInitialized = true;
   // Set user role
   // TODO get user role from JWT
   ReactGA.set({ dimension1: 'god' });
@@ -41,6 +44,7 @@ const initialize = () => {
 
 const analyticsService = {
   initialize,
+  isInitialized: () => hasBeenInitialized,
   onError,
   onEvent,
   onPageView,

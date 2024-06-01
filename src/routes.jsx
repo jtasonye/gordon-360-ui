@@ -8,6 +8,7 @@ import Events from './views/Events';
 import EventsAttended from './views/EventsAttended';
 import Feedback from './views/Feedback';
 import Help from './views/Help';
+import Root from './views/Root';
 import Home from './views/Home';
 import IDUploader from './views/IDUploader';
 import InvolvementProfile from './views/InvolvementProfile';
@@ -19,126 +20,129 @@ import Page404 from './views/Page404';
 import PeopleSearch from './views/PeopleSearch';
 import ProfileNotFound from './views/ProfileNotFound';
 import PublicProfile from './views/PublicProfile';
-import Timesheets from './views/Timesheets';
 import RecIM from './views/RecIM';
+import { createBrowserRouter } from 'react-router-dom';
 
-// Route order must be from most specific to least specific (i.e. `/user/:username` before `/user`)
-const routes = [
+const router = createBrowserRouter([
   {
-    name: 'Home',
     path: '/',
-    element: <Home />,
+    element: <Root />,
+    handle: {
+      title: () => 'Gordon 360',
+    },
+    children: [
+      { index: true, element: <Home /> },
+      {
+        path: 'about',
+        element: <About />,
+        handle: {
+          title: () => 'About',
+        },
+      },
+      {
+        path: 'ApartApp',
+        element: <ApartmentApp />,
+        handle: {
+          title: () => 'Apartment Application',
+        },
+      },
+      {
+        path: 'activity/:sessionCode/:involvementCode',
+        element: <InvolvementProfile />,
+        handle: { title: () => 'Involvement Profile' },
+      },
+      {
+        path: 'involvements',
+        element: <InvolvementsAll />,
+        handle: { title: () => 'Involvements' },
+      },
+      {
+        path: 'help',
+        element: <Help />,
+        handle: { title: () => 'Help' },
+      },
+      {
+        path: 'transcript',
+        element: <CoCurricularTranscript />,
+        handle: { title: () => 'Experience Transcript' },
+      },
+      {
+        path: 'events',
+        element: <Events />,
+        handle: { title: () => 'Events' },
+      },
+      {
+        path: 'attended',
+        element: <EventsAttended />,
+        handle: { title: () => 'Attended' },
+      },
+      {
+        path: 'feedback',
+        element: <Feedback />,
+        handle: { title: () => 'Feedback' },
+      },
+      {
+        path: 'profile/null',
+        element: <ProfileNotFound />,
+        handle: { title: () => 'Not Found' },
+      },
+      {
+        path: 'profile/:username',
+        element: <PublicProfile />,
+        handle: { title: () => 'Profile' },
+      },
+      {
+        path: 'myprofile',
+        element: <MyProfile />,
+        handle: { title: () => 'My Profile' },
+      },
+      {
+        path: 'enrollmentcheckin',
+        element: <EnrollmentCheckIn />,
+        handle: { title: () => 'Enrollment Check-In' },
+      },
+      {
+        path: 'people',
+        element: <PeopleSearch />,
+        handle: { title: () => 'People' },
+      },
+      {
+        path: 'id',
+        element: <IDUploader />,
+        handle: { title: () => 'ID Uploader' },
+      },
+      {
+        path: 'admin',
+        element: <Admin />,
+        handle: { title: () => 'Admin' },
+      },
+      {
+        path: 'banner',
+        element: <BannerSubmission />,
+        handle: { title: () => 'Banner' },
+      },
+      {
+        path: 'news',
+        element: <News />,
+        handle: { title: () => 'News' },
+      },
+      {
+        path: 'links',
+        element: <Links />,
+        handle: { title: () => 'Links' },
+      },
+      {
+        path: 'recim/*',
+        element: <RecIM />,
+        handle: { title: () => 'Rec-IM' },
+      },
+      {
+        path: '*',
+        element: <Page404 />,
+        handle: { title: () => 'Page Not Found' },
+      },
+    ],
   },
-  {
-    name: 'About',
-    path: '/about',
-    element: <About />,
-  },
-  {
-    name: 'Apartment Application',
-    path: '/ApartApp',
-    element: <ApartmentApp />,
-  },
-  {
-    name: 'Involvement Profile',
-    path: '/activity/:sessionCode/:involvementCode',
-    element: <InvolvementProfile />,
-  },
-  {
-    name: 'Involvements',
-    path: '/involvements',
-    element: <InvolvementsAll />,
-  },
-  {
-    name: 'Help',
-    path: '/help',
-    element: <Help />,
-  },
-  {
-    name: 'Experience Transcript',
-    path: '/transcript',
-    element: <CoCurricularTranscript />,
-  },
-  {
-    name: 'Events',
-    path: '/events',
-    element: <Events />,
-  },
-  {
-    name: 'Attended',
-    path: '/attended',
-    element: <EventsAttended />,
-  },
-  {
-    name: 'Feedback',
-    path: '/feedback',
-    element: <Feedback />,
-  },
-  {
-    name: 'Not Found',
-    path: '/profile/null',
-    element: <ProfileNotFound />,
-  },
-  {
-    name: 'Profile',
-    path: '/profile/:username',
-    element: <PublicProfile />,
-  },
-  {
-    name: 'My Profile',
-    path: '/myprofile',
-    element: <MyProfile />,
-  },
-  {
-    name: 'Enrollment Check-In',
-    path: '/enrollmentcheckin',
-    element: <EnrollmentCheckIn />,
-  },
-  {
-    name: 'People',
-    path: '/people',
-    element: <PeopleSearch />,
-  },
-  {
-    name: 'ID Uploader',
-    path: '/id',
-    element: <IDUploader />,
-  },
-  {
-    name: 'Admin',
-    path: '/admin',
-    element: <Admin />,
-  },
-  {
-    name: 'Timesheets',
-    path: '/timesheets',
-    element: <Timesheets />,
-  },
-  {
-    name: 'Banner',
-    path: '/banner',
-    element: <BannerSubmission />,
-  },
-  {
-    name: 'News',
-    path: '/news',
-    element: <News />,
-  },
-  {
-    name: 'Links',
-    path: '/links',
-    element: <Links />,
-  },
-  {
-    name: 'Rec-IM',
-    path: '/recim/*',
-    element: <RecIM />,
-  },
-  {
-    name: 'Page Not Found',
-    path: '*',
-    element: <Page404 />,
-  },
-];
+]);
 
-export default routes;
+export default router;
