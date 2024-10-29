@@ -19,9 +19,7 @@ const Housing = () => {
       </Grid>
     );
   } else if (isStudent) {
-    return (
-      <ResidentView className="jsx" />;
-    );
+    return <ResidentView />;
   } else if (isRA) {
     <RAView />;
   } else {
